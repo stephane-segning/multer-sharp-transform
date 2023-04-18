@@ -19,10 +19,10 @@ export class IntegrationHelpers {
     });
 
     app.post('/multiple', upload.array('photos', 12), (req, res, next) => {
-      res.status(StatusCodes.CREATED).json({file: req.file});
+      res.status(StatusCodes.CREATED).json({files: req.files});
     });
 
-    const server = await app.listen(9000);
+    const server = await app.listen();
 
     return { server, app };
   }

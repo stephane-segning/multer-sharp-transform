@@ -1,35 +1,28 @@
 import { TransformImage } from '../types';
-import sharp from 'sharp';
-import { Request } from 'express';
 
-export interface ImageResize {
-  label: string;
-  prefix?: string;
-  width?: number;
-  height?: number;
-  mimetype?: string;
+export function switchTransform(cases: Record<string, TransformImage>): TransformImage {
+  const newCases: Record<string, TransformImage> = {};
+  const allKeys = Object.keys(cases)
+    .map((key) => {
+      const idx = key.indexOf('*');
+      let newKey = key;
+      if (idx === 0) {
+        newKey = '';
+      }
+      if (idx > 0) {
+        newKey = key.substring(0, idx);
+      }
 
-  filename?: (req: Request, file: Express.Multer.File) => string;
+      newCases[newKey] = cases[key];
+      return newKey;
+    });
+
+  return (req, file) => {
+    const key = allKeys.find((key) => file.mimetype.startsWith(key));
+    if (key) {
+      return newCases[key](req, file);
+    }
+
+    return [];
+  };
 }
-
-export const imageResizeTransform: (cases: Record<string, ImageResize>) => TransformImage = (cases) => (req, file) => Object
-  .entries(cases)
-  .map(([label, value]) => {
-    return {
-      label,
-      file: {
-        originalname: value.filename ? value.filename(req, file) : value.prefix + '-' + file.originalname,
-        mimetype: value.mimetype || file.mimetype,
-        fieldname: file.fieldname,
-      },
-      adjustSharp: () => {
-        let s = sharp();
-        if (value.width ?? value.height) {
-          s = s.resize({ width: value.width, height: value.height });
-        }
-
-        return s;
-      },
-    };
-  })
-;

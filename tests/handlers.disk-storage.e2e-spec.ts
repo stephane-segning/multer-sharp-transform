@@ -1,4 +1,4 @@
-import { WrapperStorage } from '../src';
+import { imageResizeTransform, switchTransform, WrapperStorage } from '../src';
 import * as multer from 'multer';
 import { logger } from './helpers/logger';
 import { IntegrationHelpers } from './helpers/Integration-helpers';
@@ -6,12 +6,12 @@ import { Application } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as http from 'http';
 import * as path from 'path';
+import { rimraf } from 'rimraf';
 import request = require('supertest');
-import sharp = require('sharp');
 
 const uploadPath = path.resolve(__dirname, './uploads');
 
-describe('Simple upload', () => {
+describe('Handlers', () => {
   let app: Application;
   let server: http.Server;
 
@@ -25,28 +25,18 @@ describe('Simple upload', () => {
         },
       }),
       logger: logger,
-      transform: (req, file) => [
-        {
-          file: {
-            originalname: 'lg-' + file.originalname,
-          },
-          label: 'lg',
-          adjustSharp: () => sharp().resize({ width: 1000, height: 1000 }),
-        },
-        {
-          file: {
-            originalname: 'sm-' + file.originalname,
-          },
-          label: 'sm',
-          adjustSharp: () => sharp().resize({ width: 250, height: 250 }),
-        },
-        {
-          file: {
-            originalname: 'original-' + file.originalname,
-          },
-          label: 'original',
-        },
-      ],
+      transform: switchTransform({
+        'image/*': imageResizeTransform({
+          original: {},
+          xl: { width: 1200, height: 1200 },
+          lg: { width: 900, height: 900 },
+          md: { width: 600, height: 600 },
+          sm: { width: 300, height: 300 },
+          thumb: { width: 150, height: 150 },
+        }),
+        'application/pdf': () => [],
+        '*': () => [],
+      }),
     });
 
     const tmp = await IntegrationHelpers.getApp(wrapperStorage);
@@ -59,7 +49,7 @@ describe('Simple upload', () => {
     // rimraf(uploadPath);
   });
 
-  it('can get server system info', async () => {
+  it('upload single file', async () => {
     const filePath = path.resolve(__dirname, './samples/sample-2-pexels.jpg');
 
     await request(app)
@@ -70,8 +60,6 @@ describe('Simple upload', () => {
         const { file } = JSON.parse(res.text);
 
         Object.entries(file.transformations).forEach(([, value]: any) => {
-          console.log({value})
-
           if (!value.path.startsWith(uploadPath)) {
             throw new Error(`Uploaded to the wrong dist: ${file.path}`);
           }
@@ -89,10 +77,45 @@ describe('Simple upload', () => {
           }
         });
 
-
         if (!('transformations' in file)) {
           throw new Error('Wrong attribute [transformations] in response file');
         }
+      })
+      .expect(StatusCodes.CREATED);
+  });
+
+  it('upload multiple', async () => {
+    await request(app)
+      .post('/multiple')
+      .set('Accept', 'application/json')
+      .attach('photos', path.resolve(__dirname, './samples/sample-1-pexels.jpg'))
+      .attach('photos', path.resolve(__dirname, './samples/sample-2-pexels.jpg'))
+      .expect((res) => {
+        const { files } = JSON.parse(res.text);
+
+        files.forEach(file => {
+          if (!('transformations' in file)) {
+            throw new Error('Wrong attribute [transformations] in response file');
+          }
+
+          Object.entries(file.transformations).forEach(([, value]: any) => {
+            if (!value.path.startsWith(uploadPath)) {
+              throw new Error(`Uploaded to the wrong dist: ${file.path}`);
+            }
+            if (!('mimetype' in value)) {
+              throw new Error('Mimetype changed');
+            }
+            if (!('filename' in value)) {
+              throw new Error('Wrong field [filename]');
+            }
+            if (!('size' in value)) {
+              throw new Error('Wrong file [size]');
+            }
+            if ('transformations' in value) {
+              throw new Error('Wrong attribute [transformations] in response value');
+            }
+          });
+        });
       })
       .expect(StatusCodes.CREATED);
   });

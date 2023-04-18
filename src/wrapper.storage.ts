@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { from, mergeMap, toArray } from 'rxjs';
 import { Readable } from 'stream';
 import { CustomLogger, TransformImage, WrapperStorageOptions } from './types';
+import ReadableStreamClone from 'readable-stream-clone';
 
 type ResultType = [string, Partial<Express.Multer.File>];
 
@@ -43,7 +44,9 @@ export class WrapperStorage implements StorageEngine {
     const sub = from(configurations)
       .pipe(
         mergeMap(({ adjustSharp, ...rest }) => {
-          const sharpBuffer = (!adjustSharp ? sharp() : adjustSharp()).toBuffer({
+          const stream = new ReadableStreamClone(mainFile.stream);
+          const sharpInstance = (!adjustSharp ? sharp() : adjustSharp());
+          const sharpBuffer = stream.pipe(sharpInstance).toBuffer({
             resolveWithObject: true,
           });
 
@@ -83,7 +86,10 @@ export class WrapperStorage implements StorageEngine {
         next: (value) => {
           const transformations: Record<string, Partial<Express.Multer.File>> = value.reduce((prev, [label, value]) => ({
             ...prev,
-            [label]: value,
+            [label]: {
+              ...value,
+              mimetype: value.mimetype || mainFile.mimetype,
+            },
           }), {});
 
           const newFile: Partial<Express.Multer.File> = {

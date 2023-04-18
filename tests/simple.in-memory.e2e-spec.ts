@@ -33,12 +33,12 @@ describe('Simple upload', () => {
       .set('Accept', 'application/json')
       .expect((res) => {
         // eslint-disable-next-line no-console
-        console.log(res.text);
+        logger.debug(res.text);
       })
       .expect(StatusCodes.OK);
   });
 
-  it('can get server system info', async () => {
+  it('upload single file', async () => {
     const filePath = path.resolve(__dirname, './samples/sample-1-pexels.jpg');
 
     await request(app)
@@ -53,6 +53,27 @@ describe('Simple upload', () => {
         if ('transformations' in file) {
           throw new Error('Wrong attribute [transformations] in response file');
         }
+      })
+      .expect(StatusCodes.CREATED);
+  });
+
+  it('upload multiple', async () => {
+    await request(app)
+      .post('/multiple')
+      .set('Accept', 'application/json')
+      .attach('photos', path.resolve(__dirname, './samples/sample-1-pexels.jpg'))
+      .attach('photos', path.resolve(__dirname, './samples/sample-2-pexels.jpg'))
+      .expect((res) => {
+        const { files } = JSON.parse(res.text);
+
+        files.forEach(file => {
+          if (!('size' in file)) {
+            throw new Error('Missing attribute [size] in file response');
+          }
+          if ('transformations' in file) {
+            throw new Error('Wrong attribute [transformations] in response file');
+          }
+        });
       })
       .expect(StatusCodes.CREATED);
   });

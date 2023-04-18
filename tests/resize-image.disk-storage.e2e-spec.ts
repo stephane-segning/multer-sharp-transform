@@ -6,10 +6,10 @@ import { Application } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as http from 'http';
 import * as path from 'path';
-import * as fs from 'fs';
-import { rimraf } from 'rimraf';
 import request = require('supertest');
 import sharp = require('sharp');
+
+const uploadPath = path.resolve(__dirname, './uploads');
 
 describe('Simple upload', () => {
   let app: Application;
@@ -21,8 +21,6 @@ describe('Simple upload', () => {
       storage: multer.diskStorage({
         destination: uploadPath,
         filename: (req: Express.Request, file: Express.Multer.File, callback: (error: (Error | null), filename: string) => void) => {
-          console.log({ file });
-
           callback(null, file.originalname);
         },
       }),
@@ -58,11 +56,10 @@ describe('Simple upload', () => {
 
   afterAll(() => {
     server.close();
-    const uploadPath = path.resolve(__dirname, './uploads');
-    rimraf(uploadPath);
+    // rimraf(uploadPath);
   });
 
-  it('can get server system info', async () => {
+  it('upload single file', async () => {
     const filePath = path.resolve(__dirname, './samples/sample-2-pexels.jpg');
 
     await request(app)
@@ -71,21 +68,61 @@ describe('Simple upload', () => {
       .attach('file', filePath)
       .expect((res) => {
         const { file } = JSON.parse(res.text);
-        if (file.path !== path.resolve(__dirname, './uploads/sample-2-pexels.jpg')) {
-          throw new Error('Uploaded to the wrong dist');
-        }
-        if (file.mimetype !== 'image/jpeg') {
-          throw new Error('Mimetype changed');
-        }
-        if (file.fieldname !== 'file') {
-          throw new Error('Wrong field type');
-        }
-        if (file.size !== fs.readFileSync(filePath).length) {
-          throw new Error('Wrong file size');
-        }
-        if ('transformations' in file) {
+
+        Object.entries(file.transformations).forEach(([, value]: any) => {
+          if (!value.path.startsWith(uploadPath)) {
+            throw new Error(`Uploaded to the wrong dist: ${file.path}`);
+          }
+          if (!('mimetype' in value)) {
+            throw new Error('Mimetype changed');
+          }
+          if (!('filename' in value)) {
+            throw new Error('Wrong field [filename]');
+          }
+          if (!('size' in value)) {
+            throw new Error('Wrong file [size]');
+          }
+          if ('transformations' in value) {
+            throw new Error('Wrong attribute [transformations] in response value');
+          }
+        });
+
+
+        if (!('transformations' in file)) {
           throw new Error('Wrong attribute [transformations] in response file');
         }
+      })
+      .expect(StatusCodes.CREATED);
+  });
+
+  it('upload multiple', async () => {
+    await request(app)
+      .post('/multiple')
+      .set('Accept', 'application/json')
+      .attach('photos', path.resolve(__dirname, './samples/sample-1-pexels.jpg'))
+      .attach('photos', path.resolve(__dirname, './samples/sample-2-pexels.jpg'))
+      .expect((res) => {
+        const { files } = JSON.parse(res.text);
+
+        files.forEach(file => {
+          Object.entries(file.transformations).forEach(([, value]: any) => {
+            if (!value.path.startsWith(uploadPath)) {
+              throw new Error(`Uploaded to the wrong dist: ${file.path}`);
+            }
+            if (!('mimetype' in value)) {
+              throw new Error('Mimetype changed');
+            }
+            if (!('filename' in value)) {
+              throw new Error('Wrong field [filename]');
+            }
+            if (!('size' in value)) {
+              throw new Error('Wrong file [size]');
+            }
+            if ('transformations' in value) {
+              throw new Error('Wrong attribute [transformations] in response value');
+            }
+          });
+        });
       })
       .expect(StatusCodes.CREATED);
   });

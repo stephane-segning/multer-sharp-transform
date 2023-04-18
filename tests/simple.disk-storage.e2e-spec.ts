@@ -6,9 +6,8 @@ import { Application } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as http from 'http';
 import * as path from 'path';
-import { rimraf } from 'rimraf';
-import request = require('supertest');
 import * as fs from 'fs';
+import request = require('supertest');
 
 describe('Simple upload', () => {
   let app: Application;
@@ -20,8 +19,6 @@ describe('Simple upload', () => {
       storage: multer.diskStorage({
         destination: uploadPath,
         filename: (req: Express.Request, file: Express.Multer.File, callback: (error: (Error | null), filename: string) => void) => {
-          console.log({ file });
-
           callback(null, file.originalname);
         },
       }),
@@ -36,10 +33,10 @@ describe('Simple upload', () => {
   afterAll(() => {
     server.close();
     const uploadPath = path.resolve(__dirname, './uploads');
-    rimraf(uploadPath);
+    // rimraf(uploadPath);
   });
 
-  it('can get server system info', async () => {
+  it('upload single file', async () => {
     const filePath = path.resolve(__dirname, './samples/sample-1-pexels.jpg');
 
     await request(app)
@@ -63,6 +60,27 @@ describe('Simple upload', () => {
         if ('transformations' in file) {
           throw new Error('Wrong attribute [transformations] in response file');
         }
+      })
+      .expect(StatusCodes.CREATED);
+  });
+
+  it('upload multiple', async () => {
+    await request(app)
+      .post('/multiple')
+      .set('Accept', 'application/json')
+      .attach('photos', path.resolve(__dirname, './samples/sample-1-pexels.jpg'))
+      .attach('photos', path.resolve(__dirname, './samples/sample-2-pexels.jpg'))
+      .expect((res) => {
+        const { files } = JSON.parse(res.text);
+
+        files.forEach(file => {
+          if (!('size' in file)) {
+            throw new Error('Missing attribute [size] in file response');
+          }
+          if ('transformations' in file) {
+            throw new Error('Wrong attribute [transformations] in response file');
+          }
+        });
       })
       .expect(StatusCodes.CREATED);
   });

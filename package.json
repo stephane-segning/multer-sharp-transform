@@ -1,6 +1,6 @@
 {
   "name": "@ssegning/multer-sharp-transform",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "repository": "git@github.com:stephane-segning/multer-sharp-transform.git",
   "author": "Stephane Lambou <selastlambou@gmail.com>",
   "scripts": {
@@ -19,6 +19,7 @@
     "@jest/globals": "^29.5.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.0",
+    "@types/mime-types": "^2.1.1",
     "@types/multer": "^1.4.7",
     "@types/sharp": "^0.31.1",
     "@types/supertest": "^2.0.12",
@@ -42,6 +43,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "mime-types": "^2.1.35",
+    "readable-stream-clone": "^0.0.7",
     "rxjs": "^7.8.0",
     "sharp": "^0.32.0"
   },
@@ -68,12 +71,7 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "collectCoverage": true,
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "./tsconfig.json"
-      }
-    }
+    "collectCoverage": true
   },
   "publishConfig": {
     "ignore": [

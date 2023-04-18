@@ -16,7 +16,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/express.d.ts"
+    "types.d.ts"
   ],
   "exclude": [
     "tests/**/*.ts",

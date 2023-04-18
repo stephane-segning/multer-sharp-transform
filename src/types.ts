@@ -1,7 +1,6 @@
 import { Sharp } from 'sharp';
 import { Request } from 'express';
 import { StorageEngine } from 'multer';
-import * as assert from 'assert';
 
 export interface TransformOption {
   label: string;

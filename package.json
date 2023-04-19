@@ -1,6 +1,6 @@
 {
   "name": "@ssegning/multer-sharp-transform",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "repository": "git@github.com:stephane-segning/multer-sharp-transform.git",
   "author": "Stephane Lambou <selastlambou@gmail.com>",
   "scripts": {
@@ -80,7 +80,9 @@
       "!dist/**/*",
       "!package.json",
       "!types.d.ts",
-      "!yarn.lock"
+      "!yarn.lock",
+      "!tsconfig.json",
+      "!README.md"
     ]
   }
 }

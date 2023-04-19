@@ -1,6 +1,6 @@
 {
   "name": "@ssegning/multer-sharp-transform",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "repository": "git@github.com:stephane-segning/multer-sharp-transform.git",
   "author": "Stephane Lambou <selastlambou@gmail.com>",
   "scripts": {

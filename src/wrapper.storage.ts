@@ -106,7 +106,6 @@ export class WrapperStorage implements StorageEngine {
           sub.unsubscribe();
         },
       });
-
   }
 
   public _removeFile(req: Request, file: Express.Multer.File, callback: (error: (Error | null)) => void): void {

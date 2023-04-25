@@ -1,8 +1,10 @@
 coverage
 uploads
+tmp*
 node_modules
 .vscode
 .idea
 dist
 *.log
 .npmignore
+.DS_Store

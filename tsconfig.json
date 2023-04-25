@@ -1,26 +1,39 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "esModuleInterop": true,
+    "rootDir": ".",
     "sourceMap": true,
+    "declaration": true,
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "target": "es2015",
+    "module": "commonjs",
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "skipLibCheck": true,
-    "declaration": true,
     "declarationMap": true,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true
+    "paths": {
+      "@ssegning/multer-transform": [
+        "multer-transform/src/index.ts"
+      ],
+      "@ssegning/multer-transform-sharp": [
+        "multer-transform-sharp/src/index.ts"
+      ]
+    },
+    "skipDefaultLibCheck": true,
+    "baseUrl": "."
   },
-  "include": [
-    "src/**/*.ts",
-    "types.d.ts"
-  ],
   "exclude": [
-    "tests/**/*.ts",
     "node_modules"
   ]
 }

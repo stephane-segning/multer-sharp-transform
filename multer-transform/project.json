@@ -1,0 +1,52 @@
+{
+  "name": "multer-transform",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "multer-transform/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "multer-transform/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "multer-transform/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/multer-transform",
+        "tsConfig": "multer-transform/tsconfig.lib.json",
+        "packageJson": "multer-transform/package.json",
+        "main": "multer-transform/src/index.ts",
+        "assets": [
+          "multer-transform/*.md",
+          "multer-transform/**/*.d.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

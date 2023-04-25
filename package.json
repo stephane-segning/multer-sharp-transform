@@ -4,19 +4,25 @@
   "repository": "git@github.com:stephane-segning/multer-sharp-transform.git",
   "author": "Stephane Lambou <selastlambou@gmail.com>",
   "scripts": {
-    "build": "rimraf build && tsc",
+    "build": "rimraf dist && tsc",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix",
-    "dev": "tsnd --respawn src/index.ts",
+    "dev": "tsnd --respawn multer-transform-sharp/src/index.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watchAll",
-    "prepack": "npmignore --auto"
+    "test:wrapper-transform": "nx run multer-transform:test",
+    "test:wrapper-transform-sharp": "nx run multer-transform-sharp:test",
+    "build:wrapper-transform": "nx run multer-transform:build",
+    "build:wrapper-transform-sharp": "nx run multer-transform-sharp:build"
   },
   "main": "dist/index.js",
   "license": "MIT",
-  "private": false,
+  "private": true,
   "devDependencies": {
     "@jest/globals": "^29.5.0",
+    "@nrwl/jest": "^15.9.2",
+    "@nrwl/js": "15.9.2",
+    "@nrwl/node": "^15.9.2",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.0",
     "@types/mime-types": "^2.1.1",
@@ -33,12 +39,14 @@
     "http-status-codes": "^2.2.0",
     "husky": "^8.0.3",
     "jest": "^29.5.0",
+    "jest-environment-node": "^29.4.1",
     "multer": "^1.4.5-lts.1",
-    "npmignore": "^0.3.0",
+    "nx": "15.9.2",
     "prettier": "^2.8.7",
     "rimraf": "^5.0.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
+    "ts-node": "10.9.1",
     "ts-node-dev": "^2.0.0",
     "tslib": "^2.5.0",
     "typescript": "^5.0.4"
@@ -54,35 +62,7 @@
       "pre-commit": "yarn lint"
     }
   },
-  "jest": {
-    "preset": "ts-jest",
-    "setupFiles": [
-      "dotenv/config"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testEnvironment": "node",
-    "testMatch": [
-      "<rootDir>/tests/**/*spec.ts"
-    ],
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverage": true
-  },
-  "publishConfig": {
-    "ignore": [
-      "*",
-      "!dist/**/*",
-      "!package.json",
-      "!types.d.ts",
-      "!yarn.lock",
-      "!tsconfig.json",
-      "!README.md"
-    ]
+  "nx": {
+    "targets": {}
   }
 }

@@ -1,0 +1,33 @@
+{
+  "name": "@ssegning/multer-transform-sharp",
+  "version": "0.2.0",
+  "homepage": "https://github.com/stephane-segning/multer-sharp-transform",
+  "bugs": {
+    "url": "https://github.com/stephane-segning/multer-sharp-transform/issues",
+    "email": "dev@ssegning.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:stephane-segning/multer-sharp-transform.git",
+    "directory": "multer-transform-sharp"
+  },
+  "author": {
+    "email": "selastlambou@gmail.com",
+    "name": "Stephane Lambou"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "multer",
+    "rxjs",
+    "mime-types",
+    "transform",
+    "nx"
+  ],
+  "dependencies": {
+    "readable-stream-clone": "^0.0.7",
+    "sharp": "^0.32.0"
+  }
+}
